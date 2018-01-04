@@ -78,7 +78,7 @@ static ENUM ( AppState, Uninitialized, Polling, Stopping, Deinitialized ) appSta
 
 // Main application instance
 struct DllMain;
-static shared_ptr<DllMain> main;
+static shared_ptr<DllMain> mainApp;
 
 // Mutex for deinitialize()
 static Mutex deinitMutex;
@@ -1904,7 +1904,7 @@ private:
 
 static void initializeDllMain()
 {
-    main.reset ( new DllMain() );
+    mainApp.reset ( new DllMain() );
 }
 
 static void deinitialize()
@@ -1914,7 +1914,7 @@ static void deinitialize()
     if ( appState == AppState::Deinitialized )
         return;
 
-    main.reset();
+    mainApp.reset();
 
     EventManager::get().release();
     TimerManager::get().deinitialize();
@@ -1999,9 +1999,9 @@ extern "C" BOOL APIENTRY DllMain ( HMODULE, DWORD reason, LPVOID )
 
 void stopDllMain ( const string& error )
 {
-    if ( main )
+    if ( mainApp )
     {
-        main->delayedStop ( error );
+        mainApp->delayedStop ( error );
     }
     else
     {
@@ -2037,9 +2037,9 @@ extern "C" void callback()
             appState = AppState::Polling;
         }
 
-        ASSERT ( main.get() != 0 );
+        ASSERT ( mainApp.get() != 0 );
 
-        main->callback();
+        mainApp->callback();
     }
     catch ( const Exception& exc )
     {
