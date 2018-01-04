@@ -52,22 +52,22 @@ DLL_OBJECTS = $(DLL_CPP_SRCS:.cpp=.o) $(HOOK_CC_SRCS:.cc=.o) $(HOOK_C_SRCS:.c=.o
 PREFIX = i686-w64-mingw32-
 GCC = $(PREFIX)gcc
 CXX = $(PREFIX)g++
-WINDRES = $(PREFIX)windres
-STRIP = $(PREFIX)strip
+WINDRES = windres
+STRIP = strip
 TOUCH = touch
 ZIP = zip
 
 # OS specific tools / settings
 ifeq ($(OS),Windows_NT)
-	CHMOD_X = icacls $@ /grant Everyone:F
-	GRANT = icacls $@ /grant Everyone:F
+	CHMOD_X = icacls $@ //grant Everyone:F
+	GRANT = icacls $@ //grant Everyone:F
 	ASTYLE = 3rdparty/astyle.exe
 	OPENGL_HEADERS = /usr/mingw/i686-w64-mingw32/include/GL
 else
 	CHMOD_X = chmod +x $@
 	GRANT =
 	ASTYLE = 3rdparty/astyle
-	TOUCH = $(PREFIX)strip
+	TOUCH = $(STRIP)
 	OPENGL_HEADERS = /usr/i686-w64-mingw32/include/GL
 endif
 
@@ -159,14 +159,14 @@ $(FOLDER)/$(DLL): $(addprefix $(BUILD_PREFIX)/,$(DLL_OBJECTS)) res/rollback.o | 
 $(FOLDER)/$(LAUNCHER): tools/Launcher.cpp | $(FOLDER)
 	$(CXX) -o $@ $^ -m32 -s -Os -O2 -Wall -static -mwindows
 	@echo
-	$(PREFIX)strip $@
+	$(STRIP) $@
 	$(CHMOD_X)
 	@echo
 
 $(FOLDER)/$(UPDATER): tools/Updater.cpp lib/StringUtils.cpp | $(FOLDER)
 	$(CXX) -o $@ $^ -m32 -s -Os -O2 -std=c++11 -I$(CURDIR)/lib -Wall -static -lpsapi
 	@echo
-	$(PREFIX)strip $@
+	$(STRIP) $@
 	$(CHMOD_X)
 	@echo
 
@@ -203,7 +203,7 @@ tools/$(DEBUGGER): tools/Debugger.cpp $(DEBUGGER_LIB_OBJECTS)
 	$(CXX) -o $@ $(CC_FLAGS) $(LOGGING_FLAGS) -Wall -std=c++11 $^ $(LD_FLAGS) \
 	-I$(CURDIR)/3rdparty/distorm3/include -L$(CURDIR)/3rdparty/distorm3 -ldistorm3
 	@echo
-	$(PREFIX)strip $@
+	$(STRIP) $@
 	$(CHMOD_X)
 	@echo
 
@@ -214,7 +214,7 @@ GENERATOR_LIB_OBJECTS = \
 tools/$(GENERATOR): tools/Generator.cpp $(GENERATOR_LIB_OBJECTS)
 	$(CXX) -o $@ $(CC_FLAGS) $(LOGGING_FLAGS) -Wall -std=c++11 $^ $(LD_FLAGS)
 	@echo
-	$(PREFIX)strip $@
+	$(STRIP) $@
 	$(CHMOD_X)
 	@echo
 
@@ -246,7 +246,7 @@ FRAMEDISPLAY_LD_FLAGS += -mwindows -static -lmingw32 -lpng -lz -lglfw -lopengl32
 $(PALETTES): $(PALETTES_SRC) $(FRAMEDISPLAY_OBJECTS) res/palettes.res 3rdparty/AntTweakBar/lib/libAntTweakBar.a
 	$(CXX) $(FRAMEDISPLAY_CC_FLAGS) -o $@ $(FRAMEDISPLAY_INCLUDES) -Wall -std=c++11 -C $^ $(FRAMEDISPLAY_LD_FLAGS)
 	@echo
-	$(PREFIX)strip $@
+	$(STRIP) $@
 	$(CHMOD_X)
 	@echo
 
