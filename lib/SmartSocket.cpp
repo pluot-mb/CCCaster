@@ -4,6 +4,7 @@
 #include "Logger.hpp"
 
 #include <ws2tcpip.h>
+#include <fstream>
 
 using namespace std;
 
@@ -12,11 +13,17 @@ using namespace std;
 
 #define SEND_INTERVAL ( 50 )
 
-static const vector<IpAddrPort> relayServers =
-{
-    "104.206.199.123:3939",
-    "192.210.227.23:3939",
-};
+static vector<IpAddrPort> loadRelays() {
+    std::ifstream infile("relay_list.txt");
+    std::string str;
+	vector<IpAddrPort> relays;
+    while (std::getline(infile, str)) {
+        relays.push_back(str);
+    }
+	return relays;
+}
+
+static const vector<IpAddrPort> relayServers = loadRelays();
 
 /* Tunnel protocol
 
