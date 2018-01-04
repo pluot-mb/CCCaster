@@ -1,4 +1,4 @@
-VERSION = 3.0
+VERSION = 3.0a
 SUFFIX = .018
 NAME = cccaster
 TAG =
