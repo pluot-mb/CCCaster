@@ -136,6 +136,7 @@ $(ARCHIVE): $(FOLDER)/unzip.exe $(FOLDER)/$(README) $(FOLDER)/$(CHANGELOG)
 	rm -f $(wildcard $(NAME)*.zip)
 	$(ZIP) $(ARCHIVE) $^
 	$(ZIP) $(ARCHIVE) -j scripts/Add_Handler_Protocol.bat
+	$(ZIP) $(ARCHIVE) -j relay_list.txt
 	cp -r res/GRP GRP
 	$(ZIP) $(ARCHIVE) -r GRP
 	rm -rf GRP
