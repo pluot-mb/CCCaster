@@ -16,7 +16,7 @@ using namespace std;
 static vector<IpAddrPort> loadRelays() {
     std::ifstream infile("relay_list.txt");
     std::string str;
-	vector<IpAddrPort> relays;
+    vector<IpAddrPort> relays;
     while (std::getline(infile, str)) {
         relays.push_back(str);
     }
