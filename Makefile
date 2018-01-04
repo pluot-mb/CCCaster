@@ -187,7 +187,7 @@ res/rollback.bin: tools/$(GENERATOR)
 	@echo
 
 res/rollback.o: res/rollback.bin
-	$(PREFIX)objcopy -I binary -O elf32-i386 -B i386 $< $@
+	objcopy -I binary -O elf32-i386 -B i386 $< $@
 	@echo
 
 res/icon.res: res/icon.rc res/icon.ico
