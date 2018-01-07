@@ -74,7 +74,7 @@ struct JoystickMappings : public SerializableSequence
     // Then:
     //   Axis neutral -> 0b0011
     //
-    uint32_t axes[MAX_NUM_AXES][3] = { 0 };
+    uint32_t axes[MAX_NUM_AXES][3] = {{ 0 }};
 
     // Hat index -> hat value -> mapped key
     //
@@ -91,7 +91,7 @@ struct JoystickMappings : public SerializableSequence
     //
     // Similarly, the 1, 3, 7, 9 values should be mapped to the correct bit masks as well.
     //
-    uint32_t hats[MAX_NUM_HATS][10] = { 0 };
+    uint32_t hats[MAX_NUM_HATS][10] = {{ 0 }};
 
     // Button index -> mapped key
     uint32_t buttons[MAX_NUM_BUTTONS] = { 0 };
