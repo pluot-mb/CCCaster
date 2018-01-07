@@ -429,7 +429,7 @@ string Controller::getMapping ( uint32_t key, const string& placeholder ) const
                 if ( hat > 0 )
                     str += format ( " (%u)", hat + 1 );
 
-                if ( _origName.empty() )
+                if ( mapping.empty() )
                     mapping = str;
                 else
                     mapping += ", " + str;
@@ -443,7 +443,7 @@ string Controller::getMapping ( uint32_t key, const string& placeholder ) const
 
             const string str = format ( "Button %u", button + 1 );
 
-            if ( _origName.empty() )
+            if ( mapping.empty() )
                 mapping = str;
             else
                 mapping += ", " + str;
