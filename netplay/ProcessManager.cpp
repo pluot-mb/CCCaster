@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <iostream>
 #include <fstream>
+#include <memory>
 
 using namespace std;
 
@@ -142,23 +143,26 @@ void ProcessManager::openGame ( bool highPriority )
     LOG ( "appDir='%s'", appDir );
     LOG ( "gameDir='%s'", gameDir );
 
-    string command = "\"" + appDir + LAUNCHER "\" \"" + gameDir + MBAA_EXE "\" \"" + appDir + HOOK_DLL "\"";
-
+    vector<string> stringArgs;
+    stringArgs.push_back ( appDir + LAUNCHER );
+    stringArgs.push_back ( gameDir + MBAA_EXE );
+    stringArgs.push_back ( appDir + HOOK_DLL );
     if ( highPriority )
-        command += " --high";
+        stringArgs.push_back ( "--high" );
 
 #ifndef DISABLE_LOGGING
-    command += " --popup_errors";
+    stringArgs.push_back ( "--popup_errors" );
 #endif
 
-    LOG ( "Running: %s", command );
+    unique_ptr<const char *> argsPtr ( new const char *[stringArgs.size() + 1] );
+    auto *args = argsPtr.get();
+    for ( size_t i = 0; i < stringArgs.size(); i++ )
+        args[i] = stringArgs[i].c_str();
+    args[stringArgs.size()] = NULL;
 
-    int returnCode = system ( ( "\"" + command + "\"" ).c_str() );
-
-    LOG ( "returnCode=%d", returnCode );
-
+    intptr_t returnCode = _spawnv ( _P_DETACH, args[0], args );
     if ( returnCode < 0 )
-        THROW_EXCEPTION ( "returnCode=%d", ERROR_PIPE_START, returnCode );
+        THROW_EXCEPTION ( "errno=%d", ERROR_PIPE_START, errno );
 
     LOG ( "Connecting pipe" );
 
