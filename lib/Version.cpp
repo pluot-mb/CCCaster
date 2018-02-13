@@ -10,6 +10,7 @@ using namespace std;
 static vector<Version> breakingVersions =
 {
     "2.1e", // Changed protocol by adding UdpControl::Disconnect
+    "3.0a.019", // Changed round over logic
 };
 
 
@@ -101,14 +102,14 @@ bool operator< ( const Version& a, const Version& b )
     if ( a.minor() < b.minor() )
         return true;
 
-    if ( a.minor() < b.minor() )
+    if ( a.minor() > b.minor() )
         return false;
 
     if ( a.suffix() < b.suffix() )
         return true;
 
     if ( a.suffix() > b.suffix() )
-        return true;
+        return false;
 
     return false;
 }
