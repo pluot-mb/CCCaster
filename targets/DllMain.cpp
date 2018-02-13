@@ -1099,7 +1099,24 @@ struct DllMain
 
     void checkRoundOver()
     {
-        const bool isOver = ( ( *CC_P1_NO_INPUT_FLAG_ADDR ) && ( *CC_P2_NO_INPUT_FLAG_ADDR ) );
+        bool p1_over, p2_over;
+        // check whether p1 is main or puppet
+        if ( *CC_P1_PUPPET_STATE_ADDR == 0 ) {
+            p1_over = *CC_P1_NO_INPUT_FLAG_ADDR;
+        } else {
+            ASSERT ( *CC_P3_PUPPET_STATE_ADDR == 0 );
+            ASSERT ( *CC_P3_ENABLED_FLAG_ADDR );
+            p1_over = *CC_P3_NO_INPUT_FLAG_ADDR;
+        }
+        // ditto for p2
+        if ( *CC_P2_PUPPET_STATE_ADDR == 0 ) {
+            p2_over = *CC_P2_NO_INPUT_FLAG_ADDR;
+        } else {
+            ASSERT ( *CC_P4_PUPPET_STATE_ADDR == 0 );
+            ASSERT ( *CC_P4_ENABLED_FLAG_ADDR );
+            p2_over = *CC_P4_NO_INPUT_FLAG_ADDR;
+        }
+        const bool isOver = p1_over && p2_over;
 
         if ( netMan.getRollback() )
         {

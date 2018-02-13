@@ -138,8 +138,9 @@
 #define CC_PLR_STRUCT_SIZE          ( 0xAFC )
 
 // Player addresses
-// P1 start from 0x555134
-// P2 start from 0x555C30
+// P1 start from 0x555130
+// P2 start from 0x555C2C
+#define CC_P1_ENABLED_FLAG_ADDR     ( ( uint8_t * )  0x555130 )
 #define CC_P1_SEQUENCE_ADDR         ( ( uint32_t * ) 0x555140 )
 #define CC_P1_SEQ_STATE_ADDR        ( ( uint32_t * ) 0x555144 )
 #define CC_P1_HEALTH_ADDR           ( ( uint32_t * ) 0x5551EC )
@@ -149,6 +150,7 @@
 #define CC_P1_METER_ADDR            ( ( uint32_t * ) 0x555210 )
 #define CC_P1_HEAT_ADDR             ( ( uint32_t * ) 0x555214 )
 #define CC_P1_NO_INPUT_FLAG_ADDR    ( ( uint8_t * )  0x5552A7 ) // Indicates when input is disabled, ie KO or time over
+#define CC_P1_PUPPET_STATE_ADDR     ( ( uint8_t * )  0x5552A8 ) // 0 is not puppet, 1 is puppet, 2 is puppet w/ hurtbox?
 
 #define CC_P1_X_POSITION_ADDR       ( ( int32_t * )  0x555238 )
 #define CC_P1_Y_POSITION_ADDR       ( ( int32_t * )  0x55523C )
@@ -161,6 +163,7 @@
 #define CC_P1_SPRITE_ANGLE_ADDR     ( ( uint32_t * ) 0x555430 )
 #define CC_P1_FACING_FLAG_ADDR      ( ( uint8_t * )  0x555444 ) // 0 facing left, 1 facing right
 
+#define CC_P2_ENABLED_FLAG_ADDR     ( ( uint8_t * )  ( ( ( char * ) CC_P1_ENABLED_FLAG_ADDR  ) + CC_PLR_STRUCT_SIZE ) )
 #define CC_P2_SEQUENCE_ADDR         ( ( uint32_t * ) ( ( ( char * ) CC_P1_SEQUENCE_ADDR      ) + CC_PLR_STRUCT_SIZE ) )
 #define CC_P2_SEQ_STATE_ADDR        ( ( uint32_t * ) ( ( ( char * ) CC_P1_SEQ_STATE_ADDR     ) + CC_PLR_STRUCT_SIZE ) )
 #define CC_P2_HEALTH_ADDR           ( ( uint32_t * ) ( ( ( char * ) CC_P1_HEALTH_ADDR        ) + CC_PLR_STRUCT_SIZE ) )
@@ -170,9 +173,18 @@
 #define CC_P2_METER_ADDR            ( ( uint32_t * ) ( ( ( char * ) CC_P1_METER_ADDR         ) + CC_PLR_STRUCT_SIZE ) )
 #define CC_P2_HEAT_ADDR             ( ( uint32_t * ) ( ( ( char * ) CC_P1_HEAT_ADDR          ) + CC_PLR_STRUCT_SIZE ) )
 #define CC_P2_NO_INPUT_FLAG_ADDR    ( ( uint8_t * )  ( ( ( char * ) CC_P1_NO_INPUT_FLAG_ADDR ) + CC_PLR_STRUCT_SIZE ) )
+#define CC_P2_PUPPET_STATE_ADDR     ( ( uint8_t * )  ( ( ( char * ) CC_P1_PUPPET_STATE_ADDR  ) + CC_PLR_STRUCT_SIZE ) )
 #define CC_P2_X_POSITION_ADDR       ( ( int32_t * )  ( ( ( char * ) CC_P1_X_POSITION_ADDR    ) + CC_PLR_STRUCT_SIZE ) )
 #define CC_P2_Y_POSITION_ADDR       ( ( int32_t * )  ( ( ( char * ) CC_P1_Y_POSITION_ADDR    ) + CC_PLR_STRUCT_SIZE ) )
 #define CC_P2_FACING_FLAG_ADDR      ( ( uint8_t * )  ( ( ( char * ) CC_P1_FACING_FLAG_ADDR   ) + CC_PLR_STRUCT_SIZE ) )
+
+#define CC_P3_ENABLED_FLAG_ADDR     ( ( uint8_t * )  ( ( ( char * ) CC_P2_ENABLED_FLAG_ADDR  ) + CC_PLR_STRUCT_SIZE ) )
+#define CC_P3_NO_INPUT_FLAG_ADDR    ( ( uint8_t * )  ( ( ( char * ) CC_P2_NO_INPUT_FLAG_ADDR ) + CC_PLR_STRUCT_SIZE ) )
+#define CC_P3_PUPPET_STATE_ADDR     ( ( uint8_t * )  ( ( ( char * ) CC_P2_PUPPET_STATE_ADDR  ) + CC_PLR_STRUCT_SIZE ) )
+
+#define CC_P4_ENABLED_FLAG_ADDR     ( ( uint8_t * )  ( ( ( char * ) CC_P3_ENABLED_FLAG_ADDR  ) + CC_PLR_STRUCT_SIZE ) )
+#define CC_P4_NO_INPUT_FLAG_ADDR    ( ( uint8_t * )  ( ( ( char * ) CC_P3_NO_INPUT_FLAG_ADDR ) + CC_PLR_STRUCT_SIZE ) )
+#define CC_P4_PUPPET_STATE_ADDR     ( ( uint8_t * )  ( ( ( char * ) CC_P3_PUPPET_STATE_ADDR  ) + CC_PLR_STRUCT_SIZE ) )
 
 // Camera addresses
 #define CC_CAMERA_X_ADDR            ( ( int * )      0x564B14 )
