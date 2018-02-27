@@ -143,10 +143,11 @@ void ProcessManager::openGame ( bool highPriority )
     LOG ( "appDir='%s'", appDir );
     LOG ( "gameDir='%s'", gameDir );
 
+    string path = appDir + LAUNCHER;
     vector<string> stringArgs;
-    stringArgs.push_back ( appDir + LAUNCHER );
-    stringArgs.push_back ( gameDir + MBAA_EXE );
-    stringArgs.push_back ( appDir + HOOK_DLL );
+    stringArgs.push_back ( "\"" + path + "\"" );
+    stringArgs.push_back ( "\"" + gameDir + MBAA_EXE + "\"" );
+    stringArgs.push_back ( "\"" + appDir + HOOK_DLL + "\"" );
     if ( highPriority )
         stringArgs.push_back ( "--high" );
 
@@ -160,7 +161,7 @@ void ProcessManager::openGame ( bool highPriority )
         args[i] = stringArgs[i].c_str();
     args[stringArgs.size()] = NULL;
 
-    intptr_t returnCode = _spawnv ( _P_DETACH, args[0], args );
+    intptr_t returnCode = _spawnv ( _P_DETACH, path.c_str(), args );
     if ( returnCode < 0 )
         THROW_EXCEPTION ( "errno=%d", ERROR_PIPE_START, errno );
 
