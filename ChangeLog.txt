@@ -1,3 +1,7 @@
+v3.0.019:
+- Fix bugs caused by maids mirrors and hime
+- Fix text bugging out on Windows 10 after starting the game
+
 v3.0.018:
 - Fix "Could not create process [193]" launcher error.
 - Fix crash during game start when controller is plugged in or disconnected.
