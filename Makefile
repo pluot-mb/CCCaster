@@ -22,6 +22,7 @@ PALETTES = palettes.exe
 MBAA_EXE = MBAA.exe
 README = README.md
 CHANGELOG = ChangeLog.txt
+RELAY_LIST = relay_list.txt
 
 # Library sources
 GTEST_CC_SRCS = 3rdparty/gtest/fused-src/gtest/gtest-all.cc
@@ -77,6 +78,7 @@ DEFINES = -DWIN32_LEAN_AND_MEAN -DWINVER=0x501 -D_WIN32_WINNT=0x501 -D_M_IX86
 DEFINES += -DNAMED_PIPE='"\\\\.\\pipe\\cccaster_pipe"' -DPALETTES_FOLDER='"$(PALETTES_FOLDER)\\"' -DREADME='"$(README)"'
 DEFINES += -DMBAA_EXE='"$(MBAA_EXE)"' -DBINARY='"$(BINARY)"' -DFOLDER='"$(FOLDER)\\"' -DCHANGELOG='"$(CHANGELOG)"'
 DEFINES += -DHOOK_DLL='"$(FOLDER)\\$(DLL)"' -DLAUNCHER='"$(FOLDER)\\$(LAUNCHER)"' -DUPDATER='"$(UPDATER)"'
+DEFINES += -DRELAY_LIST='"$(RELAY_LIST)"'
 INCLUDES = -I$(CURDIR) -I$(CURDIR)/netplay -I$(CURDIR)/lib -I$(CURDIR)/tests -I$(CURDIR)/3rdparty
 INCLUDES += -I$(CURDIR)/3rdparty/cereal/include -I$(CURDIR)/3rdparty/gtest/include -I$(CURDIR)/3rdparty/minhook/include
 INCLUDES += -I$(CURDIR)/3rdparty/d3dhook -I$(CURDIR)/3rdparty/framedisplay
@@ -136,7 +138,7 @@ $(ARCHIVE): $(FOLDER)/unzip.exe $(FOLDER)/$(README) $(FOLDER)/$(CHANGELOG)
 	rm -f $(wildcard $(NAME)*.zip)
 	$(ZIP) $(ARCHIVE) $^
 	$(ZIP) $(ARCHIVE) -j scripts/Add_Handler_Protocol.bat
-	$(ZIP) $(ARCHIVE) -j relay_list.txt
+	$(ZIP) $(ARCHIVE) -j $(RELAY_LIST)
 	cp -r res/GRP GRP
 	$(ZIP) $(ARCHIVE) -r GRP
 	rm -rf GRP

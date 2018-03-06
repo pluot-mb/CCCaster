@@ -4,9 +4,13 @@
 #include "Exceptions.hpp"
 #include "StringUtils.hpp"
 #include "ConsoleUi.hpp"
+#include "Version.hpp"
 
 #include <optionparser.h>
 #include <windows.h>
+#include <algorithm>
+#include <fstream>
+#include <iterator>
 
 using namespace std;
 using namespace option;
@@ -56,12 +60,34 @@ static bool initDirsAndSanityCheck ( bool checkGameExe = true )
         lastError += "\nMissing " HOOK_DLL "!";
         success = false;
     }
+    else
+    {
+        // make sure hook dll is the same version by by checking if the version
+        // string can be found in the dll file
+        ifstream dll( ProcessManager::appDir + HOOK_DLL, ios::binary );
+        const string &code = LocalVersion.code;
+        // if |code| cannot be found in the hook dll
+        if ( search ( istream_iterator<char>(dll), istream_iterator<char>(),
+                    code.begin(), code.end() ) == istream_iterator<char>() )
+        {
+            lastError += "\nIncompatible " HOOK_DLL "!";
+            success = false;
+        }
+    }
 
     val = GetFileAttributes ( ( ProcessManager::appDir + LAUNCHER ).c_str() );
 
     if ( val == INVALID_FILE_ATTRIBUTES )
     {
         lastError += "\nMissing " LAUNCHER "!";
+        success = false;
+    }
+
+    val = GetFileAttributes ( RELAY_LIST );
+
+    if ( val == INVALID_FILE_ATTRIBUTES )
+    {
+        lastError += "\nMissing " RELAY_LIST "!";
         success = false;
     }
 

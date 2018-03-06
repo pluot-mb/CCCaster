@@ -14,7 +14,7 @@ using namespace std;
 #define SEND_INTERVAL ( 50 )
 
 static vector<IpAddrPort> loadRelays() {
-    std::ifstream infile("relay_list.txt");
+    std::ifstream infile(RELAY_LIST);
     std::string str;
     vector<IpAddrPort> relays;
     while (std::getline(infile, str)) {
