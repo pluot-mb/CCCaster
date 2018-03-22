@@ -1,5 +1,5 @@
-VERSION = 3.0a
-SUFFIX = .019
+VERSION = 3.0
+SUFFIX = a.019
 NAME = cccaster
 TAG =
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
