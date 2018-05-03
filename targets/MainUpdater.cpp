@@ -117,11 +117,11 @@ bool MainUpdater::openChangeLog() const
 
 bool MainUpdater::extractArchive() const
 {
-    DWORD val = GetFileAttributes ( ( _downloadDir + CHANGELOG ).c_str() );
+    DWORD val = GetFileAttributes ( ( _downloadDir + UPDATE_ARCHIVE_FILE ).c_str() );
 
     if ( val == INVALID_FILE_ATTRIBUTES )
     {
-        LOG ( "Missing: %s", _downloadDir + CHANGELOG );
+        LOG ( "Missing: %s", _downloadDir + UPDATE_ARCHIVE_FILE );
         return false;
     }
 
