@@ -34,6 +34,8 @@ void DllRollbackManager::GameState::save()
 
 void DllRollbackManager::GameState::load()
 {
+    fesetenv(&fp_env);
+
     ASSERT ( rawBytes != 0 );
 
     const char *dump = rawBytes;
@@ -97,11 +99,16 @@ void DllRollbackManager::saveState ( const NetplayManager& netMan )
         }
     }
 
+    std::fenv_t fp_env;
+
+    fegetenv(&fp_env);
+
     GameState state =
     {
         netMan._state,
         netMan._startWorldTime,
         netMan._indexedFrame,
+        fp_env,
         _memoryPool.get() + _freeStack.top()
     };
 

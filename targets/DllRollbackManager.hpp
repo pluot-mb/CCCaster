@@ -7,6 +7,7 @@
 #include <stack>
 #include <list>
 #include <array>
+#include <cfenv>
 
 
 class DllRollbackManager
@@ -36,6 +37,7 @@ private:
         NetplayState netplayState;
         uint32_t startWorldTime;
         IndexedFrame indexedFrame;
+        std::fenv_t fp_env;
 
         // The pointer to the raw bytes in the state pool
         char *rawBytes;
