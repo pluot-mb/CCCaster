@@ -1,3 +1,8 @@
+v3.0a.020 (unofficial):
+- Fixed auto updater not updating game.
+- Fixed desyncs caused by the FPU state not being restored on rollback.
+  (Credit to Mizunashi for the fix)
+
 v3.0a.019 (unofficial):
 - Fixed a bug that caused the game to crash sometimes in maids mirrors and matches with Hime.
 - Fixed text bugging out on Windows 10 after starting the game.
