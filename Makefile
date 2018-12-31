@@ -57,6 +57,8 @@ WINDRES = windres
 STRIP = strip
 TOUCH = touch
 ZIP = zip
+UNAME := $(shell uname)
+$(info VAR=$(UNAME))
 
 # OS specific tools / settings
 ifeq ($(OS),Windows_NT)
@@ -65,6 +67,8 @@ ifeq ($(OS),Windows_NT)
 	ASTYLE = 3rdparty/astyle.exe
 	OPENGL_HEADERS = /usr/mingw/i686-w64-mingw32/include/GL
 else
+	WINDRES = $(PREFIX)windres
+	STRIP = $(PREFIX)strip
 	CHMOD_X = chmod +x $@
 	GRANT =
 	ASTYLE = 3rdparty/astyle
@@ -186,11 +190,19 @@ $(FOLDER):
 	mkdir -p $@
 
 res/rollback.bin: tools/$(GENERATOR)
+ifeq ($(UNAME),Darwin)
+	wine tools/$(GENERATOR) $@
+else
 	tools/$(GENERATOR) $@
+endif
 	@echo
 
 res/rollback.o: res/rollback.bin
+ifeq ($(UNAME),Darwin)
+	$(PREFIX)objcopy -I binary -O elf32-i386 -B i386 $< $@
+else
 	objcopy -I binary -O elf32-i386 -B i386 $< $@
+endif
 	@echo
 
 res/icon.res: res/icon.rc res/icon.ico
@@ -291,7 +303,7 @@ depend: version proto
 
 
 clean-proto:
-	git co -- lib/ProtocolEnums.hpp
+	git checkout -- lib/ProtocolEnums.hpp
 	rm -f $(AUTOGEN_HEADERS)
 
 clean-res:

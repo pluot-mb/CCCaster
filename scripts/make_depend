@@ -6,7 +6,7 @@ branch=`git rev-parse --abbrev-ref HEAD`
 
 # echo Checking dependencies...
 
-tail -n +1 -- `ls -1 $files | sort | paste -sd " "` | grep "^#include \"\|^==>" > tmp_include
+tail -n +1 -- `ls -1 $files | sort | paste -sd " " -` | grep "^#include \"\|^==>" > tmp_include
 diff > /dev/null 2>&1 tmp_include .include_$branch
 
 if [ $? -ne 0 ]; then
