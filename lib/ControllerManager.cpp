@@ -68,6 +68,21 @@ static inline uint8_t mapHatValue ( uint32_t value )
     return values[value];
 }
 
+std::string sanitize( std::string str ){
+    str.erase(std::remove_if(str.begin(), str.end(),
+                             [](unsigned char x){
+                                 return (x == '/'
+                                         || x == '\\'
+                                         || x == '<'
+                                         || x == '>'
+                                         || x == '"'
+                                         || x == '|'
+                                         || x == '?'
+                                         || x == '*'
+                                         || x == ':');
+                             }), str.end());
+    return str;
+}
 
 void ControllerManager::savePrevStates()
 {
@@ -433,7 +448,7 @@ static BOOL CALLBACK enumJoysticks ( const DIDEVICEINSTANCE *ddi, void *userPtr 
     const Guid guidInstance = ddi->guidInstance;
 
     JoystickInfo info;
-    info.name = ddi->tszProductName;
+    info.name = sanitize( ddi->tszProductName );
     info.guid = ddi->guidProduct;
 
     LOG ( "%s: guidInstance='%s'; guidProduct='%s'", info.name, guidInstance, info.guid );
