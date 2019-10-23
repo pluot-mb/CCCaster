@@ -668,6 +668,12 @@ void NetplayManager::setInput ( uint8_t player, uint16_t input )
     else if ( _state == NetplayState::RetryMenu )
     {
         _inputs[player - 1].set ( getIndex() - _startIndex, getFrame(), input );
+    } else if ( config.mode.isOffline() && splitDelay ){
+        if ( player == 1 ) {
+            _inputs[player - 1].set ( getIndex() - _startIndex, getFrame() + config.delay, input );
+        } else {
+            _inputs[player - 1].set ( getIndex() - _startIndex, getFrame() + config.rollbackDelay, input );
+        }
     }
     else
     {

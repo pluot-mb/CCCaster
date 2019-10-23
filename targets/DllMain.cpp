@@ -250,7 +250,11 @@ struct DllMain
 
                                 changeConfig.value = ChangeConfig::Delay;
                                 changeConfig.indexedFrame = netMan.getIndexedFrame();
-                                changeConfig.delay = delay;
+                                if ( KeyboardState::isDown( VK_MENU ) && netMan.config.mode.isOffline() ) {
+                                    changeConfig.rollbackDelay = delay;
+                                } else {
+                                    changeConfig.delay = delay;
+                                }
                                 changeConfig.rollback = netMan.getRollback();
                                 changeConfig.invalidate();
                                 break;
@@ -603,6 +607,14 @@ struct DllMain
                 LOG ( "Input delay was changed %u -> %u", netMan.getDelay(), changeConfig.delay );
                 DllOverlayUi::showMessage ( format ( "Input delay was changed to %u", changeConfig.delay ) );
                 netMan.setDelay ( changeConfig.delay );
+                procMan.ipcSend ( changeConfig );
+            }
+
+            if ( changeConfig.rollbackDelay < 0xFF && changeConfig.rollbackDelay != netMan.getRollbackDelay() && netMan.config.mode.isOffline() )
+            {
+                LOG ( "P2 Input delay was changed %u -> %u", netMan.getRollbackDelay(), changeConfig.rollbackDelay );
+                DllOverlayUi::showMessage ( format ( "P2 Input delay was changed to %u", changeConfig.rollbackDelay ) );
+                netMan.setRollbackDelay ( changeConfig.rollbackDelay );
                 procMan.ipcSend ( changeConfig );
             }
 
