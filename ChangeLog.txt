@@ -1,3 +1,7 @@
+v3.0.021:
+- Added Replay mode to Offline Menu
+- Added match results to main menu
+
 v3.0a.020 (unofficial):
 - Fixed auto updater not updating game.
 - Fixed desyncs caused by the FPU state not being restored on rollback.

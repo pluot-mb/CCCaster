@@ -205,6 +205,7 @@ struct DllMain
             case NetplayState::Loading:
             case NetplayState::Skippable:
             case NetplayState::RetryMenu:
+            case NetplayState::ReplayMenu:
             {
                 // Fast-forward if spectator
                 if ( spectateFastFwd && clientMode.isSpectate() && netMan.getState() != NetplayState::Loading )
@@ -1070,7 +1071,7 @@ struct DllMain
         if ( current == CC_GAME_MODE_IN_GAME )
         {
             // Versus mode in-game starts with character intros, which is a skippable state
-            if ( netMan.config.mode.isVersus() )
+            if ( netMan.config.mode.isVersus() && !netMan.config.mode.isReplay() )
                 netplayStateChanged ( NetplayState::Skippable );
             else
                 netplayStateChanged ( NetplayState::InGame );
@@ -1080,6 +1081,12 @@ struct DllMain
         if ( current == CC_GAME_MODE_RETRY )
         {
             netplayStateChanged ( NetplayState::RetryMenu );
+            return;
+        }
+
+        if ( current == CC_GAME_MODE_REPLAY )
+        {
+            netplayStateChanged ( NetplayState::ReplayMenu );
             return;
         }
 
@@ -1137,7 +1144,7 @@ struct DllMain
                 roundOverTimer = -1;
             }
         }
-        else if ( isOver )
+        else if ( isOver && !netMan.config.mode.isReplay() )
         {
             netplayStateChanged ( NetplayState::Skippable );
         }
@@ -1591,6 +1598,8 @@ struct DllMain
                     WRITE_ASM_HACK ( AsmHacks::forceGotoTraining );
                 else if ( clientMode.isVersusCPU() )
                     WRITE_ASM_HACK ( AsmHacks::forceGotoVersusCPU );
+                else if ( clientMode.isReplay() )
+                    WRITE_ASM_HACK ( AsmHacks::forceGotoReplay );
                 else
                     WRITE_ASM_HACK ( AsmHacks::forceGotoVersus );
 

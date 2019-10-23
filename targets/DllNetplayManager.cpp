@@ -8,6 +8,7 @@
 #include <cmath>
 #include <unordered_map>
 #include <unordered_set>
+#include <fstream>
 
 using namespace std;
 
@@ -104,6 +105,20 @@ uint16_t NetplayManager::getSkippableInput ( uint8_t player )
     if ( config.mode.isSpectate() )
         RETURN_MASH_INPUT ( 0, CC_BUTTON_CONFIRM );
 
+    uint16_t input = getRawInput ( player );
+    if ( config.mode.isReplay() ) {
+        AsmHacks::menuConfirmState = 2;
+        if ( *CC_PAUSE_FLAG_ADDR )
+        {
+            AsmHacks::menuConfirmState = 2;
+
+            // Don't allow hitting Confirm until 3f after we have stopped moving the cursor. This is a work around
+            // for the issue when select is pressed after the cursor moves, but before currentMenuIndex is updated.
+            if ( hasUpDownInHistory ( player, 0, 3 ) )
+                input &= ~ COMBINE_INPUT ( 0, CC_BUTTON_A | CC_BUTTON_CONFIRM );
+        }
+        return input;
+    }
     // Only allow the confirm and cancel here
     return ( getRawInput ( player ) & COMBINE_INPUT ( 0, CC_BUTTON_CONFIRM | CC_BUTTON_CANCEL ) );
 }
@@ -210,6 +225,16 @@ uint16_t NetplayManager::getInGameInput ( uint8_t player )
             input |= COMBINE_INPUT ( 0, CC_BUTTON_FN2 );
         }
     }
+
+    return input;
+}
+
+uint16_t NetplayManager::getReplayMenuInput ( uint8_t player )
+{
+    uint16_t input = getRawInput(player);
+
+    // Prevent exiting character select
+    input &= ~ COMBINE_INPUT ( 0, CC_BUTTON_B | CC_BUTTON_CANCEL );
 
     return input;
 }
@@ -562,6 +587,7 @@ void NetplayManager::setState ( NetplayState state )
         {
             // The actual retry menu is opened at position *CC_MENU_STATE_COUNTER_ADDR + 1
             _retryMenuStateCounter = *CC_MENU_STATE_COUNTER_ADDR + 1;
+            exportResults();
         }
 
         // Exiting RetryMenu
@@ -613,6 +639,8 @@ uint16_t NetplayManager::getInput ( uint8_t player )
 
         case NetplayState::RetryMenu:
             return getRetryMenuInput ( player );
+        case NetplayState::ReplayMenu:
+            return getRawInput ( player );
 
         default:
             ASSERT_IMPOSSIBLE;
@@ -948,13 +976,14 @@ bool NetplayManager::isValidNext ( NetplayState next )
     {
         { NetplayState::Unknown, { NetplayState::PreInitial } },
         { NetplayState::PreInitial, { NetplayState::Initial } },
-        { NetplayState::Initial, { NetplayState::AutoCharaSelect, NetplayState::CharaSelect } },
+        { NetplayState::Initial, { NetplayState::AutoCharaSelect, NetplayState::CharaSelect, NetplayState::ReplayMenu } },
         { NetplayState::AutoCharaSelect, { NetplayState::Loading } },
         { NetplayState::CharaSelect, { NetplayState::Loading } },
         { NetplayState::Loading, { NetplayState::Skippable, NetplayState::InGame } },
         { NetplayState::Skippable, { NetplayState::InGame, NetplayState::RetryMenu } },
-        { NetplayState::InGame, { NetplayState::Skippable, NetplayState::CharaSelect } },
-        { NetplayState::RetryMenu, { NetplayState::Loading, NetplayState::CharaSelect } },
+        { NetplayState::InGame, { NetplayState::Skippable, NetplayState::CharaSelect, NetplayState::ReplayMenu, NetplayState::RetryMenu } },
+        { NetplayState::RetryMenu, { NetplayState::Loading, NetplayState::CharaSelect, NetplayState::ReplayMenu } },
+        { NetplayState::ReplayMenu, { NetplayState::Loading } },
     };
 
     const auto it = validTransitions.find ( _state.value );
@@ -963,4 +992,32 @@ bool NetplayManager::isValidNext ( NetplayState next )
         return false;
 
     return ( it->second.find ( next.value ) != it->second.end() );
+}
+
+void NetplayManager::exportResults() {
+    ofstream resFile;
+    resFile.open( "results.csv", ios::out | ios::app );
+    char buf[100];
+    char* moon[3] = { "C", "F", "H" };
+    if ( _localPlayer == 1 ) {
+        sprintf( buf, "\"%s\",%s-%s,%d,\"%s\",%s-%s,%d",
+                 config.names[0].c_str(), moon[*CC_P1_MOON_SELECTOR_ADDR],
+                 getShortCharaName(*CC_P1_CHARACTER_ADDR),
+                 *CC_P1_WINS_ADDR,
+                 config.names[1].c_str(), moon[*CC_P2_MOON_SELECTOR_ADDR],
+                 getShortCharaName(*CC_P2_CHARACTER_ADDR),
+                 *CC_P2_WINS_ADDR
+               );
+    } else {
+        sprintf( buf, "\"%s\",%s-%s,%d,\"%s\",%s-%s,%d",
+                 config.names[1].c_str(), moon[*CC_P2_MOON_SELECTOR_ADDR],
+                 getShortCharaName(*CC_P2_CHARACTER_ADDR),
+                 *CC_P2_WINS_ADDR,
+                 config.names[0].c_str(), moon[*CC_P1_MOON_SELECTOR_ADDR],
+                 getShortCharaName(*CC_P1_CHARACTER_ADDR),
+                 *CC_P1_WINS_ADDR
+               );
+    }
+    resFile << buf << endl;
+    resFile.close();
 }

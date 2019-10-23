@@ -5,15 +5,15 @@
 
 /* Netplay state transitions
 
-    Unknown -> PreInitial -> Initial -> { AutoCharaSelect (spectate only), CharaSelect }
+    Unknown -> PreInitial -> Initial -> { AutoCharaSelect (spectate only), CharaSelect, ReplayMenu (offline only) }
 
-    { AutoCharaSelect (spectate only), CharaSelect } -> Loading
+    { AutoCharaSelect (spectate only), CharaSelect, ReplayMenu } -> Loading
 
     Loading -> { Skippable, InGame (training mode) }
 
     Skippable -> { InGame (versus mode), RetryMenu }
 
-    InGame -> { Skippable, CharaSelect (not on netplay) }
+    InGame -> { Skippable, CharaSelect (not on netplay), ReplayMenu }
 
     RetryMenu -> { Loading, CharaSelect }
 
@@ -28,4 +28,5 @@
 // Skippable: Skippable states (chara intros, round transitions, post-game, pre-retry)
 // InGame: In-game state
 // RetryMenu: Post-game retry menu
-ENUM ( NetplayState, PreInitial, Initial, AutoCharaSelect, CharaSelect, Loading, Skippable, InGame, RetryMenu );
+// ReplayMenu: Replay select menu
+ENUM ( NetplayState, PreInitial, Initial, AutoCharaSelect, CharaSelect, Loading, Skippable, InGame, RetryMenu, ReplayMenu );

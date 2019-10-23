@@ -269,14 +269,14 @@ bool MainUi::gameMode ( bool below )
 
 bool MainUi::offlineGameMode()
 {
-    _ui->pushRight ( new ConsoleUi::Menu ( "Mode", { "Training", "Versus", "Versus CPU", "Tournament" }, "Cancel" ) );
+    _ui->pushRight ( new ConsoleUi::Menu ( "Mode", { "Training", "Versus", "Versus CPU", "Tournament", "Replay" }, "Cancel" ) );
     _ui->top<ConsoleUi::Menu>()->setPosition ( _config.getInteger ( "lastOfflineMenuPosition" ) - 1 );
 
     int mode = _ui->popUntilUserInput ( true )->resultInt; // Clear other messages since we're starting the game now
 
     _ui->pop();
 
-    if ( mode < 0 || mode > 3 )
+    if ( mode < 0 || mode > 4 )
         return false;
 
     _config.setInteger ( "lastOfflineMenuPosition", mode + 1 );
@@ -290,6 +290,8 @@ bool MainUi::offlineGameMode()
         initialConfig.mode.flags = ClientMode::VersusCPU;
     else if ( mode == 3 )
         _netplayConfig.tournament = true;
+    else if ( mode == 4 )
+      initialConfig.mode.flags = ClientMode::Replay;
     else
         return false;
 
@@ -840,6 +842,84 @@ void MainUi::settings()
     _ui->pop();
 }
 
+void MainUi::results()
+{
+    static const vector<string> options =
+    {
+      "Show",
+      "Next",
+      "Back",
+    };
+
+    _ui->pushRight ( new ConsoleUi::Menu ( "Results", options, "Quit" ) );
+
+    stringstream buf;
+    ifstream infile;
+    string line;
+    vector<string> stvec;
+    bool showResults = false;
+    int index = 0;
+    int maxIndex = 0;
+
+    infile.open ( "results.csv" );
+    while( getline ( infile, line ) ) {
+        stvec.push_back ( line );
+        maxIndex += 1;
+    }
+    for ( ;; )
+    {
+        ConsoleUi::Element *menu = _ui->popUntilUserInput ( false ); // Clear popped since we don't care about messages
+
+        if ( menu->resultInt < 0 || menu->resultInt >= ( int ) options.size() )
+            break;
+
+        switch ( menu->resultInt )
+        {
+            case 0:
+                showResults = true;
+                buf.str( "" );
+                for ( int i = index; i < index + 10; ++ i) {
+                    buf << stvec[i] << endl;
+                }
+                _ui->pushBelow ( new ConsoleUi::TextBox ( buf.str() ) ,
+                             { 1, 1 } ); // Don't expand but DO clear top
+                //system ( "@pause > nul" );
+                break;
+            case 1:
+                if ( !showResults || index > maxIndex - 10 )
+                    break;
+                //_ui->pop();
+                buf.str( "" );
+                if ( index < maxIndex - 10)
+                    index += 10;
+                for ( int i = index; i < index + 10; ++ i) {
+                    if ( i < maxIndex )
+                        buf << stvec[i] << endl;
+                }
+                _ui->pushBelow ( new ConsoleUi::TextBox ( buf.str() ) ,
+                                 { 1, 1 } ); // Don't expand but DO clear top
+                break;
+            case 2:
+                if ( !showResults || index < 10 )
+                    break;
+                //_ui->pop();
+                buf.str( "" );
+                index -= 10;
+                for ( int i = index; i < index + 10; ++ i) {
+                    buf << stvec[i] << endl;
+                }
+                _ui->pushBelow ( new ConsoleUi::TextBox ( buf.str() ) ,
+                                 { 1, 1 } ); // Don't expand but DO clear top
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    _ui->pop();
+}
+
 void MainUi::setMaxRealDelay ( uint8_t delay )
 {
     _config.setInteger ( "maxRealDelay", delay );
@@ -984,6 +1064,7 @@ void MainUi::main ( RunFuncPtr run )
             "Controls",
             "Settings",
             ( _upToDate || !isOnline() ) ? "Changes" : "Update",
+            "Results",
         };
 
         _ui->pushRight ( new ConsoleUi::Menu ( uiTitle, options, "Quit" ) );
@@ -1072,6 +1153,9 @@ void MainUi::main ( RunFuncPtr run )
                     update();
                 break;
 
+            case 7:
+                results();
+                break;
             default:
                 break;
         }

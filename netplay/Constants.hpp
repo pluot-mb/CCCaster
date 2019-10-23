@@ -102,6 +102,7 @@
 #define CC_GAME_MODE_LOADING_DEMO   ( 13 )
 #define CC_GAME_MODE_HIGH_SCORES    ( 11 )
 #define CC_GAME_MODE_MAIN           ( 25 )
+#define CC_GAME_MODE_REPLAY         ( 26 )
 #define CC_GAME_MODE_CHARA_SELECT   ( 20 )
 #define CC_GAME_MODE_LOADING        ( 8 )
 #define CC_GAME_MODE_IN_GAME        ( 1 )
@@ -250,6 +251,9 @@ inline const char *gameModeStr ( uint32_t gameMode )
 
         case CC_GAME_MODE_RETRY:
             return "Retry";
+
+        case CC_GAME_MODE_REPLAY:
+            return "Replay";
 
         default:
             break;

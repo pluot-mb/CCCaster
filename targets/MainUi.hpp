@@ -90,6 +90,7 @@ private:
     void offline ( RunFuncPtr run );
     void controls();
     void settings();
+    void results();
 
     bool areYouSure();
 

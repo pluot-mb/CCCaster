@@ -57,6 +57,9 @@ public:
     IndexedFrame getLastChangedFrame() const;
     void clearLastChangedFrame();
 
+    // Log Results
+    void exportResults();
+
     // Get / set the current NetplayState
     NetplayState getState() const { return _state; }
     void setState ( NetplayState state );
@@ -185,6 +188,7 @@ private:
     uint16_t getSkippableInput ( uint8_t player );
     uint16_t getInGameInput ( uint8_t player );
     uint16_t getRetryMenuInput ( uint8_t player );
+    uint16_t getReplayMenuInput ( uint8_t player );
 
     // Get the input needed to navigate the menu
     uint16_t getMenuNavInput();
