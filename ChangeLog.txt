@@ -2,6 +2,7 @@ v3.0.021:
 - Added Replay mode to Offline Menu
 - Added match results to main menu
 - Added separately configurable P1/P2 input delay for offline
+- Fixed issue with PS4 stick button mappings
 
 v3.0a.020 (unofficial):
 - Fixed auto updater not updating game.

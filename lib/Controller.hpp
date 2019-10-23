@@ -113,10 +113,17 @@ struct JoystickState
 
     bool isNeutral() const
     {
+        int i = 0;
         for ( auto& a : axes )
         {
-            if ( a != AXIS_CENTERED )
-                return false;
+            if ( a != AXIS_CENTERED ) {
+                //TODO: find some other way to Id shoulders
+                if (!(
+                    ( a == AXIS_NEGATIVE && i == 3 ) ||
+                    ( a == AXIS_POSITIVE && i == 4)))
+                    return false;
+            }
+            ++i;
         }
         for ( auto& a : hats )
         {
