@@ -879,7 +879,8 @@ void MainUi::results()
                 showResults = true;
                 buf.str( "" );
                 for ( int i = index; i < index + 10; ++ i) {
-                    buf << stvec[i] << endl;
+                    if ( i < maxIndex )
+                        buf << stvec[i] << endl;
                 }
                 _ui->pushBelow ( new ConsoleUi::TextBox ( buf.str() ) ,
                              { 1, 1 } ); // Don't expand but DO clear top

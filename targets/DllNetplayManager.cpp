@@ -1003,7 +1003,7 @@ bool NetplayManager::isValidNext ( NetplayState next )
 void NetplayManager::exportResults() {
     ofstream resFile;
     resFile.open( "results.csv", ios::out | ios::app );
-    char buf[100];
+    char buf[ 1000 + config.names[0].length() + config.names[1].length() ];
     char* moon[3] = { "C", "F", "H" };
     if ( _localPlayer == 1 ) {
         sprintf( buf, "\"%s\",%s-%s,%d,\"%s\",%s-%s,%d",
