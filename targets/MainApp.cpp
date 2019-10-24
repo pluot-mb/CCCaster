@@ -117,6 +117,8 @@ struct MainApp
 
     bool delayChanged = false;
 
+    bool rollbackDelayChanged = false;
+
     bool rollbackChanged = false;
 
     /* Connect protocol
@@ -1109,6 +1111,9 @@ struct MainApp
                 if ( msg->getAs<ChangeConfig>().value == ChangeConfig::Delay )
                     delayChanged = true;
 
+                if ( msg->getAs<ChangeConfig>().value == ChangeConfig::Delay )
+                    rollbackDelayChanged = true;
+
                 if ( msg->getAs<ChangeConfig>().value == ChangeConfig::Rollback )
                     rollbackChanged = true;
 
@@ -1117,6 +1122,8 @@ struct MainApp
                                           msg->getAs<ChangeConfig>().delay, msg->getAs<ChangeConfig>().rollback ) );
                 else if ( delayChanged )
                     ui.display ( format ( "Input delay was changed to %u", msg->getAs<ChangeConfig>().delay ) );
+                else if ( rollbackDelayChanged )
+                    ui.display ( format ( "P2 Input delay was changed to %u", msg->getAs<ChangeConfig>().rollbackDelay ) );
                 else if ( rollbackChanged )
                     ui.display ( format ( "Rollback was changed to %u", msg->getAs<ChangeConfig>().rollback ) );
                 return;

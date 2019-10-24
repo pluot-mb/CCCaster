@@ -419,7 +419,7 @@ struct MenuIndex : public SerializableSequence
 
 struct ChangeConfig : public SerializableSequence
 {
-    ENUM_BOILERPLATE ( ChangeConfig, Delay, Rollback )
+    ENUM_BOILERPLATE ( ChangeConfig, Delay, Rollback, RollbackDelay )
 
     IndexedFrame indexedFrame = {{ 0, 0 }};
 
