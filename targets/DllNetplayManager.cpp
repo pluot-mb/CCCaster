@@ -640,7 +640,7 @@ uint16_t NetplayManager::getInput ( uint8_t player )
         case NetplayState::RetryMenu:
             return getRetryMenuInput ( player );
         case NetplayState::ReplayMenu:
-            return getRawInput ( player );
+            return getReplayMenuInput ( player );
 
         default:
             ASSERT_IMPOSSIBLE;
