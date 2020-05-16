@@ -57,7 +57,7 @@ public:
     IndexedFrame getLastChangedFrame() const;
     void clearLastChangedFrame();
 
-    // Log Results
+    // Log results
     void exportResults();
 
     // Get / set the current NetplayState
@@ -212,4 +212,8 @@ private:
 
     // Get the buffered preserveStartIndex
     uint32_t getBufferedPreserveStartIndex() const;
+	
+    std::string sanitizePlayerName( std::string name );
+    void findAndReplaceAll( std::string& data, std::string toSearch, std::string replaceStr );
+    std::string getISOTime();
 };
