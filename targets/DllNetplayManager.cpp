@@ -151,9 +151,6 @@ uint16_t NetplayManager::getInGameInput ( uint8_t player )
         if ( AsmHacks::currentMenuIndex == ( config.mode.isTraining() ? 16 : 6 ) )
             input &= ~ COMBINE_INPUT ( 0, CC_BUTTON_A | CC_BUTTON_CONFIRM );
 
-        // Disable returning to chara-select in Wine; 15 and 4 are the menu positions for training and versus mode
-        if ( config.mode.isWine() && AsmHacks::currentMenuIndex == ( config.mode.isTraining() ? 15 : 4 ) )
-            input &= ~ COMBINE_INPUT ( 0, CC_BUTTON_A | CC_BUTTON_CONFIRM );
     }
     else if ( config.mode.isTraining() && config.mode.isOffline() && player == config.hostPlayer
               && *CC_DUMMY_STATUS_ADDR != CC_DUMMY_STATUS_DUMMY
