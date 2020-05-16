@@ -202,7 +202,7 @@ void initializePostLoad()
     // We can't hook DirectX calls on Wine (yet?).
     if ( ProcessManager::isWine() )
     {
-        *CC_AUTO_REPLAY_SAVE_ADDR = 0;
+        //*CC_AUTO_REPLAY_SAVE_ADDR = 0;
         return;
     }
 
