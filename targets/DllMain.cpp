@@ -257,25 +257,25 @@ struct DllMain
                             }
                         }
                     } else if ( KeyboardState::isDown ( VK_MENU ) && netMan.config.mode.isOffline() ) {
-						for ( uint8_t p2Delay = 0; p2Delay < 10; ++p2Delay )
+                        for ( uint8_t p2Delay = 0; p2Delay < 10; ++p2Delay )
                         {
                             if ( p2Delay == netMan.getRollbackDelay() )
                                 continue;
-							
-							if ( KeyboardState::isPressed ( '0' + p2Delay )                   // Alt + Number
+                            
+                            if ( KeyboardState::isPressed ( '0' + p2Delay )                   // Alt + Number
                                     || KeyboardState::isPressed ( VK_NUMPAD0 + p2Delay ) )    // Alt + Numpad Number
                             {
-								shouldChangeDelayRollback = true;
-								
-								changeConfig.value = ChangeConfig::RollbackDelay;
-								changeConfig.indexedFrame = netMan.getIndexedFrame();
-								changeConfig.rollbackDelay = p2Delay;
-								changeConfig.rollback = netMan.getRollback();
+                                shouldChangeDelayRollback = true;
+                                
+                                changeConfig.value = ChangeConfig::RollbackDelay;
+                                changeConfig.indexedFrame = netMan.getIndexedFrame();
+                                changeConfig.rollbackDelay = p2Delay;
+                                changeConfig.rollback = netMan.getRollback();
                                 changeConfig.invalidate();
                                 break;
-							}
+                            }
                         }
-					}
+                    }
 
                     if ( KeyboardState::isDown ( VK_MENU ) && netMan.getRollback() )        // Only if already rollback
                     {
@@ -621,8 +621,8 @@ struct DllMain
             {
                 LOG ( "Input delay was changed %u -> %u", netMan.getDelay(), changeConfig.delay );
                 DllOverlayUi::showMessage ( format ( netMan.config.mode.isOffline() && netMan.isSplitDelay() ? "P1 input delay was changed to %u" :
-				                                                                                               "Input delay was changed to %u",
-				                                     changeConfig.delay ) );
+                                                                                                               "Input delay was changed to %u",
+                                                     changeConfig.delay ) );
                 netMan.setDelay ( changeConfig.delay );
                 procMan.ipcSend ( changeConfig );
             }
@@ -631,8 +631,8 @@ struct DllMain
             {
                 LOG ( "P2 input delay was changed %u -> %u", netMan.getRollbackDelay(), changeConfig.rollbackDelay );
                 DllOverlayUi::showMessage ( format ( netMan.config.mode.isOffline() && netMan.isSplitDelay() ? "P2 input delay was changed to %u" :
-				                                                                                               "Rollback delay was changed to %u",
-				                                     changeConfig.rollbackDelay ) );
+                                                                                                               "Rollback delay was changed to %u",
+                                                     changeConfig.rollbackDelay ) );
                 netMan.setRollbackDelay ( changeConfig.rollbackDelay );
                 procMan.ipcSend ( changeConfig );
             }

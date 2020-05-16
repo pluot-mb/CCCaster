@@ -116,9 +116,9 @@ public:
     {
         config.rollbackDelay = delay;
     }
-	
-	// Check if delay is split
-	bool isSplitDelay() const { return _splitDelay; }
+    
+    // Check if delay is split
+    bool isSplitDelay() const { return _splitDelay; }
 
     // Get / set input rollback frames
     uint8_t getRollback() const { return config.rollback; }
