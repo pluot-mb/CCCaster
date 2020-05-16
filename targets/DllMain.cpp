@@ -1804,7 +1804,7 @@ struct DllMain
                     WRITE_ASM_HACK ( AsmHacks::hijackIntroState );
 
                     // Disable auto replay save (TODO)
-                    *CC_AUTO_REPLAY_SAVE_ADDR = 0;
+                    /* *CC_AUTO_REPLAY_SAVE_ADDR = 0; */
 
                     // Disable stage animations (TODO)
                     *CC_STAGE_ANIMATION_OFF_ADDR = 1;
