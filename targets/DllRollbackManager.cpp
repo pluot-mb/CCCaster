@@ -148,12 +148,48 @@ bool DllRollbackManager::loadState ( IndexedFrame indexedFrame, NetplayManager& 
             netMan._startWorldTime = it->startWorldTime;
             netMan._indexedFrame = it->indexedFrame;
             it->load();
+            
+            // Count the number of frames rolled back
+            int rbFrames = _statesList.back().indexedFrame.value - it->indexedFrame.value;
+            LOG("Rolled back %i frames", rbFrames);
 
             // Erase all other states after the current one.
             // Note: it.base() returns 1 after the position of it, but moving forward.
             for ( auto jt = it.base(); jt != _statesList.end(); ++jt )
             {
                 _freeStack.push ( jt->rawBytes - _memoryPool.get() );
+            }
+            
+            // Erase one frame of inputs from the game's replay structs for each frame rolled back.
+            for (; rbFrames > 0; rbFrames--) {
+                #define CC_REPLAY_ROUND_TABLE_END_PTR ((void*)0x77BF9C)
+                char* currentRound   = *(char**)CC_REPLAY_ROUND_TABLE_END_PTR - 0x140;
+                char* inputContainer = *(char**)(currentRound + 0x120);
+                // Assumes there are always containers for 4 players in this table; may not be true
+                for (int i=0; i<4; i++) {
+                    char*  stateTable       = *(char**)(inputContainer+ 0x4);
+                    char** stateTableEnd    =  (char**)(inputContainer+ 0x8);
+                    int*   totalFrameCount  =  (int*)  (inputContainer+0x10);
+                    int*   totalFrameCount2 =  (int*)  (inputContainer+0x14);
+                    int*   activeIndex      =  (int*)  (inputContainer+0x18);
+                    if (stateTable) {
+                        unsigned char* stateFrameCount = (unsigned char*)(stateTable + *activeIndex*8 + 1);
+                        if (*stateFrameCount) {
+                            if (*stateFrameCount == 1) {
+                                memset(stateTable + *activeIndex*8, 0, 8);
+                                *stateTableEnd -= 8;
+                                LOG("Replay state %i for p%i has frame count 1; decrementing index", *activeIndex, i+1);
+                                (*activeIndex)--;
+                            } else {
+                                LOG("Replay state %i for p%i has frame count %i; decrementing count", *activeIndex, i+1, *stateFrameCount);
+                                (*stateFrameCount)--;
+                            }
+                            (*totalFrameCount )--;
+                            (*totalFrameCount2)--;
+                        }
+                    }
+                    inputContainer += 0x20;
+                }
             }
 
             _statesList.erase ( it.base(), _statesList.end() );
