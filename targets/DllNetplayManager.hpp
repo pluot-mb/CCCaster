@@ -116,6 +116,9 @@ public:
     {
         config.rollbackDelay = delay;
     }
+	
+	// Check if delay is split
+	bool isSplitDelay() const { return _splitDelay; }
 
     // Get / set input rollback frames
     uint8_t getRollback() const { return config.rollback; }
@@ -186,7 +189,7 @@ private:
     uint8_t _remotePlayer = 2;
 
     // Separate delays for p1/p2
-    bool splitDelay = true;
+    bool _splitDelay = true;
 
     // Get the input for the specific NetplayState
     uint16_t getPreInitialInput ( uint8_t player );

@@ -1111,21 +1111,30 @@ struct MainApp
                 if ( msg->getAs<ChangeConfig>().value == ChangeConfig::Delay )
                     delayChanged = true;
 
-                if ( msg->getAs<ChangeConfig>().value == ChangeConfig::Delay )
+                if ( msg->getAs<ChangeConfig>().value == ChangeConfig::RollbackDelay )
                     rollbackDelayChanged = true;
 
                 if ( msg->getAs<ChangeConfig>().value == ChangeConfig::Rollback )
                     rollbackChanged = true;
 
-                if ( delayChanged && rollbackChanged )
+                if ( delayChanged && rollbackChanged ) {
                     ui.display ( format ( "Input delay was changed to %u\nRollback was changed to %u",
                                           msg->getAs<ChangeConfig>().delay, msg->getAs<ChangeConfig>().rollback ) );
-                else if ( delayChanged )
-                    ui.display ( format ( "Input delay was changed to %u", msg->getAs<ChangeConfig>().delay ) );
-                else if ( rollbackDelayChanged )
-                    ui.display ( format ( "P2 Input delay was changed to %u", msg->getAs<ChangeConfig>().rollbackDelay ) );
-                else if ( rollbackChanged )
+                } else if ( delayChanged && rollbackDelayChanged ) {
+					ui.display ( format ( options[Options::Offline] ? "P1 input delay was changed to %u\nP2 input delay was changed to %u" :
+					                                                  "P1 input delay was changed to %u\nRollback delay was changed to %u",
+					                      msg->getAs<ChangeConfig>().delay, msg->getAs<ChangeConfig>().rollbackDelay ) );
+				} else if ( delayChanged ) {
+                    ui.display ( format ( options[Options::Offline] ? "P1 input delay was changed to %u" :
+				                                                      "Input delay was changed to %u",
+				                          msg->getAs<ChangeConfig>().delay ) );
+                } else if ( rollbackDelayChanged ) {
+                    ui.display ( format ( options[Options::Offline] ? "P2 input delay was changed to %u" :
+					                                                  "Rollback delay was changed to %u",
+					                      msg->getAs<ChangeConfig>().rollbackDelay ) );
+                } else if ( rollbackChanged ) {
                     ui.display ( format ( "Rollback was changed to %u", msg->getAs<ChangeConfig>().rollback ) );
+				}
                 return;
 
             default:
@@ -1239,10 +1248,11 @@ struct MainApp
             ASSERT ( config.getMsgType() == MsgType::NetplayConfig );
 
             netplayConfig = config.getAs<NetplayConfig>();
+			
+			options.set ( Options::Offline, 1 );
 
             if ( netplayConfig.tournament )
             {
-                options.set ( Options::Offline, 1 );
                 options.set ( Options::Training, 0 );
                 options.set ( Options::Broadcast, 0 );
                 options.set ( Options::Spectate, 0 );
