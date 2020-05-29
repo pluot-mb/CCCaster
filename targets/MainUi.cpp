@@ -551,6 +551,7 @@ void MainUi::settings()
         "Max allowed network delay",
         "Default rollback",
         "Held start button in versus",
+        "Replay saving with rollback (may be unstable)",
         "About",
     };
 
@@ -817,8 +818,25 @@ void MainUi::settings()
                 _ui->pop();
                 break;
             }
-
+            
             case 9:
+                _ui->pushInFront ( new ConsoleUi::Menu ( "Enable replay saving during rollback netplay?",
+                { "Yes", "No" }, "Cancel" ),
+                { 0, 0 }, true ); // Don't expand but DO clear top
+
+                _ui->top<ConsoleUi::Menu>()->setPosition ( ( _config.getInteger ( "replayRollbackOn" ) + 1 ) % 2 );
+                _ui->popUntilUserInput();
+
+                if ( _ui->top()->resultInt >= 0 && _ui->top()->resultInt <= 1 )
+                {
+                    _config.setInteger ( "replayRollbackOn", ( _ui->top()->resultInt + 1 ) % 2 );
+                    saveConfig();
+                }
+
+                _ui->pop();
+                break;
+
+            case 10:
                 _ui->pushInFront ( new ConsoleUi::TextBox ( format ( "CCCaster %s%s\n\nRevision %s\n\nBuilt on %s\n\n"
                                    "Created by Madscientist\n\nPress any key to go back",
                                    LocalVersion.code,
@@ -948,6 +966,7 @@ void MainUi::initialize()
     _config.setInteger ( "defaultRollback", 4 );
     _config.setInteger ( "autoCheckUpdates", 1 );
     _config.setDouble ( "heldStartDuration", 1.5 );
+    _config.setInteger("replayRollbackOn", 1);
 
     // Cached UI state (defaults)
     _config.setInteger ( "lastUsedPort", -1 );

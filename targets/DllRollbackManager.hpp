@@ -37,6 +37,8 @@ private:
         NetplayState netplayState;
         uint32_t startWorldTime;
         IndexedFrame indexedFrame;
+        
+        // Floating-point environment state
         std::fenv_t fp_env;
 
         // The pointer to the raw bytes in the state pool

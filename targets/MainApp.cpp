@@ -1215,6 +1215,9 @@ struct MainApp
             options.set ( Options::HeldStartDuration, 1,
                           format ( "%u", uint32_t ( 60 * ui.getConfig().getDouble ( "heldStartDuration" ) ) ) );
         }
+        
+        if (ui.getConfig().getInteger("replayRollbackOn"))
+            options.set(Options::ReplayRollbackOn, 1);
 
         if ( ! ProcessManager::getIsWindowed() )
         {

@@ -1500,6 +1500,8 @@ struct DllMain
 
                 if ( options[Options::HeldStartDuration] )
                     netMan.heldStartDuration = lexical_cast<uint32_t> ( options.arg ( Options::HeldStartDuration ) );
+                
+                netMan.replayRollbackOn = options[Options::ReplayRollbackOn];
 
                 // This will log in the previous appDir folder it not the same
                 LOG ( "appDir='%s'", ProcessManager::appDir );
@@ -1803,8 +1805,9 @@ struct DllMain
                     // Manually control intro state
                     WRITE_ASM_HACK ( AsmHacks::hijackIntroState );
 
-                    // Disable auto replay save (TODO)
-                    /* *CC_AUTO_REPLAY_SAVE_ADDR = 0; */
+                    // Don't allow auto replay save if replay rollback is disabled
+                    if (!options[Options::ReplayRollbackOn])
+                        *CC_AUTO_REPLAY_SAVE_ADDR = 0;
 
                     // Disable stage animations (TODO)
                     *CC_STAGE_ANIMATION_OFF_ADDR = 1;

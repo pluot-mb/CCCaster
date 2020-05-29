@@ -36,7 +36,8 @@ ENUM ( Options,
        NoFork,
        AppDir,
        SessionId,
-       HeldStartDuration );
+       HeldStartDuration,
+       ReplayRollbackOn );
 
 
 // Forward declaration

@@ -198,13 +198,9 @@ void initializePostLoad()
     if ( status != MH_OK )
         LOG ( "Enable hook failed: %s", MH_StatusString ( status ) );
 
-    // We can't save replays on Wine because MBAA crashes even without us.
     // We can't hook DirectX calls on Wine (yet?).
     if ( ProcessManager::isWine() )
-    {
-        //*CC_AUTO_REPLAY_SAVE_ADDR = 0;
         return;
-    }
 
     // Apparently this needs to be applied AFTER the game loads
     DllFrameRate::enable();

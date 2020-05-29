@@ -25,6 +25,9 @@ public:
     // The number of frames it takes to register a held start button input
     uint32_t heldStartDuration = 0;
 
+    // Disable replay saving with rollback and don't roll back replay structs if false
+    bool replayRollbackOn = false;
+
     // Indicate which player is the remote player
     void setRemotePlayer ( uint8_t player );
 
@@ -212,7 +215,7 @@ private:
 
     // Get the buffered preserveStartIndex
     uint32_t getBufferedPreserveStartIndex() const;
-	
+    
     std::string sanitizePlayerName( std::string name );
     void findAndReplaceAll( std::string& data, std::string toSearch, std::string replaceStr );
     std::string getISOTime();
