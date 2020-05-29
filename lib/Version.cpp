@@ -10,7 +10,6 @@ using namespace std;
 static vector<Version> breakingVersions =
 {
     "2.1e", // Changed protocol by adding UdpControl::Disconnect
-    "3.0a.019", // Changed round over logic
 };
 
 
