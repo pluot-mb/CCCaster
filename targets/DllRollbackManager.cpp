@@ -167,33 +167,24 @@ bool DllRollbackManager::loadState ( IndexedFrame indexedFrame, NetplayManager& 
             if (netMan.replayRollbackOn) {
                 // Erase one frame of inputs from the game's replay structs for each frame rolled back.
                 for (; rbFrames > 0; rbFrames--) {
-                    #define CC_REPLAY_ROUND_TABLE_END_PTR ((void*)0x77BF9C)
-                    char* currentRound   = *(char**)CC_REPLAY_ROUND_TABLE_END_PTR - 0x140;
-                    char* inputContainer = *(char**)(currentRound + 0x120);
-                    // Assumes there are always containers for 4 players in this table; may not be true
+                    if (!*(RepRound**)CC_REPROUND_TBL_ENDPTR_ADDR) break;
+                    RepRound* curRound = (*(RepRound**)CC_REPROUND_TBL_ENDPTR_ADDR - 1);
+                    if (!curRound->inputs) break;
+                    // Assumes there are always containers for 4 players in input container table; may not be true
                     for (int i=0; i<4; i++) {
-                        char*  stateTable       = *(char**)(inputContainer+ 0x4);
-                        char** stateTableEnd    =  (char**)(inputContainer+ 0x8);
-                        int*   totalFrameCount  =  (int*)  (inputContainer+0x10);
-                        int*   totalFrameCount2 =  (int*)  (inputContainer+0x14);
-                        int*   activeIndex      =  (int*)  (inputContainer+0x18);
-                        if (stateTable) {
-                            unsigned char* stateFrameCount = (unsigned char*)(stateTable + *activeIndex*8 + 1);
-                            if (*stateFrameCount) {
-                                if (*stateFrameCount == 1) {
-                                    memset(stateTable + *activeIndex*8, 0, 8);
-                                    *stateTableEnd -= 8;
-                                    LOG("Replay state %i for p%i has frame count 1; decrementing index", *activeIndex, i+1);
-                                    (*activeIndex)--;
-                                } else {
-                                    LOG("Replay state %i for p%i has frame count %i; decrementing count", *activeIndex, i+1, *stateFrameCount);
-                                    (*stateFrameCount)--;
-                                }
-                                (*totalFrameCount )--;
-                                (*totalFrameCount2)--;
-                            }
+                        RepInputContainer* inputs = &(curRound->inputs[i]);
+                        if (!inputs->states) continue;
+                        RepInputState* state = &(inputs->states[inputs->activeIndex]);
+                        if (!state->frameCount) continue;
+                        if (state->frameCount == 1) {
+                            memset(state, 0, sizeof(RepInputState));
+                            inputs->statesEnd -= sizeof(RepInputState);
+                            LOG("Replay state %i for p%i has frame count 1; decrementing index", inputs->activeIndex, i+1);
+                            inputs->activeIndex--;
+                        } else {
+                            LOG("Replay state %i for p%i has frame count %i; decrementing count", inputs->activeIndex, i+1, state->frameCount);
+                            state->frameCount--;
                         }
-                        inputContainer += 0x20;
                     }
                 }
             }

@@ -196,6 +196,9 @@
 #define CC_SFX_ARRAY_LEN            ( 1500 )
 #define DX_MUTED_VOLUME             ( 0xFFFFD8F0u )
 
+// Pointer to the end of the table of replay round structs
+#define CC_REPROUND_TBL_ENDPTR_ADDR ((void*)0x77BF9C)
+
 // Number of frames in the initial movement only phase
 #define CC_PRE_GAME_INTRO_FRAMES    ( 224 )
 

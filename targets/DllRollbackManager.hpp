@@ -9,6 +9,32 @@
 #include <array>
 #include <cfenv>
 
+struct __attribute__((packed)) RepInputState
+{
+    char unk1;
+    char frameCount;
+    char unk2[6];
+};
+
+struct __attribute__((packed)) RepInputContainer
+{
+    char           unk1[4];
+    RepInputState* states;
+    char*          statesEnd;
+    char           unk2[4];
+    int            totalFrameCount;
+    int            totalFrameCount2;
+    int            activeIndex;
+    char           unk3[4];
+};
+
+struct __attribute__((packed)) RepRound
+{
+    char               unk1[0x120];
+    RepInputContainer* inputs;      // points to an array of 4 input structs
+    char               unk2[0x1C];
+};
+
 
 class DllRollbackManager
 {
