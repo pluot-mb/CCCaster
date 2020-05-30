@@ -105,8 +105,8 @@ uint16_t NetplayManager::getSkippableInput ( uint8_t player )
     if ( config.mode.isSpectate() )
         RETURN_MASH_INPUT ( 0, CC_BUTTON_CONFIRM );
 
-    uint16_t input = getRawInput ( player );
     if ( config.mode.isReplay() ) {
+        uint16_t input = getRawInput ( player );
         AsmHacks::menuConfirmState = 2;
         if ( *CC_PAUSE_FLAG_ADDR )
         {
@@ -659,22 +659,15 @@ void NetplayManager::setInput ( uint8_t player, uint16_t input )
     ASSERT ( player == 1 || player == 2 );
     ASSERT ( getIndex() >= _startIndex );
 
-    if ( isInRollback() )
-    {
+    if ( isInRollback() ) {
         _inputs[player - 1].set ( getIndex() - _startIndex, getFrame() + config.rollbackDelay, input );
-    }
-    else if ( _state == NetplayState::RetryMenu )
-    {
+    } else if ( _state == NetplayState::RetryMenu ) {
         _inputs[player - 1].set ( getIndex() - _startIndex, getFrame(), input );
-    } else if ( config.mode.isOffline() && isSplitDelay() ){
-        if ( player == 1 ) {
-            _inputs[player - 1].set ( getIndex() - _startIndex, getFrame() + config.delay, input );
-        } else {
-            _inputs[player - 1].set ( getIndex() - _startIndex, getFrame() + config.rollbackDelay, input );
-        }
-    }
-    else
-    {
+    } else if ( config.mode.isOffline() && isSplitDelay() ) {
+        _inputs[player - 1].set ( getIndex() - _startIndex,
+                                  getFrame() + (player == 1 ? config.delay : config.rollbackDelay),
+                                  input );
+    } else {
         _inputs[player - 1].set ( getIndex() - _startIndex, getFrame() + config.delay, input );
     }
 }
