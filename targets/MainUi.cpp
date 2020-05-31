@@ -23,9 +23,6 @@ using namespace std;
 // Main configuration file
 #define CONFIG_FILE FOLDER "config.ini"
 
-// Path of the latest version file
-#define LATEST_VERSION_PATH "LatestVersion"
-
 // Main update archive file name
 #define UPDATE_ARCHIVE "update.zip"
 
@@ -551,7 +548,7 @@ void MainUi::settings()
         "Max allowed network delay",
         "Default rollback",
         "Held start button in versus",
-        "Replay saving with rollback (may be unstable)",
+        "Replay saving with rollback (possibly less stable)",
         "About",
     };
 
@@ -820,16 +817,15 @@ void MainUi::settings()
             }
             
             case 9:
-                _ui->pushInFront ( new ConsoleUi::Menu ( "Enable replay saving during rollback netplay?",
-                { "Yes", "No" }, "Cancel" ),
-                { 0, 0 }, true ); // Don't expand but DO clear top
+                _ui->pushInFront(new ConsoleUi::Menu("Enable replay saving during rollback netplay?",
+                {"Yes", "No"}, "Cancel"),
+                {0, 0}, true); // Don't expand but DO clear top
 
-                _ui->top<ConsoleUi::Menu>()->setPosition ( ( _config.getInteger ( "replayRollbackOn" ) + 1 ) % 2 );
+                _ui->top<ConsoleUi::Menu>()->setPosition((_config.getInteger( "replayRollbackOn") + 1)%2);
                 _ui->popUntilUserInput();
 
-                if ( _ui->top()->resultInt >= 0 && _ui->top()->resultInt <= 1 )
-                {
-                    _config.setInteger ( "replayRollbackOn", ( _ui->top()->resultInt + 1 ) % 2 );
+                if (_ui->top()->resultInt >= 0 && _ui->top()->resultInt <= 1) {
+                    _config.setInteger ("replayRollbackOn", (_ui->top()->resultInt + 1)%2);
                     saveConfig();
                 }
 
@@ -967,6 +963,7 @@ void MainUi::initialize()
     _config.setInteger ( "autoCheckUpdates", 1 );
     _config.setDouble ( "heldStartDuration", 1.5 );
     _config.setInteger("replayRollbackOn", 1);
+    _config.setInteger("updateChannel", static_cast<int>(MainUpdater::Channel::Stable));
 
     // Cached UI state (defaults)
     _config.setInteger ( "lastUsedPort", -1 );
@@ -995,6 +992,10 @@ void MainUi::initialize()
     // Load then save all controller mappings
     ControllerManager::get().loadMappings ( ProcessManager::appDir + FOLDER, MAPPINGS_EXT );
     ControllerManager::get().saveMappings ( ProcessManager::appDir + FOLDER, MAPPINGS_EXT );
+    
+    // Initialize updater
+    _updater.setTemporal(MainUpdater::Temporal::Latest);
+    _updater.setChannel(static_cast<MainUpdater::Channel::Enum>(_config.getInteger("updateChannel")));
 }
 
 void MainUi::saveConfig()
@@ -1065,7 +1066,7 @@ static bool isOnline()
 void MainUi::main ( RunFuncPtr run )
 {
     if ( _config.getInteger ( "autoCheckUpdates" ) )
-        update ( true );
+        sessionMessage = getUpdate ( true );
 
     ASSERT ( _ui.get() != 0 );
 
@@ -1083,7 +1084,7 @@ void MainUi::main ( RunFuncPtr run )
             "Offline",
             "Controls",
             "Settings",
-            ( _upToDate || !isOnline() ) ? "Changes" : "Update",
+            "Update",
             "Results",
         };
 
@@ -1167,15 +1168,13 @@ void MainUi::main ( RunFuncPtr run )
                 break;
 
             case 6:
-                if ( _upToDate )
-                    openChangeLog();
-                else
-                    update();
+                update();
                 break;
 
             case 7:
                 results();
                 break;
+
             default:
                 break;
         }
@@ -1418,38 +1417,39 @@ string MainUi::formatStats ( const PingStats& pingStats )
            );
 }
 
-void MainUi::update ( bool isStartup )
+std::string MainUi::getUpdate ( bool isStartup )
 {
     if ( ! isOnline() )
     {
-        sessionMessage = "No Internet connection";
-        return;
+        return "No Internet connection";
     }
 
     AutoManager _;
 
     fetch ( MainUpdater::Type::Version );
 
-    if ( _updater.getLatestVersion().empty() )
+    if ( _updater.getTargetVersion().empty() )
     {
-        sessionMessage = "Cannot fetch latest version info";
-        return;
+        return "Cannot fetch info for " + _updater.getTargetDescName() + " version";
     }
 
-    if ( LocalVersion.isSimilar ( _updater.getLatestVersion(), 2 ) )
+    if ( LocalVersion.isSimilar ( _updater.getTargetVersion(), 2 ) )
     {
-        if ( ! isStartup )
-            sessionMessage = "You already have the latest version";
         _upToDate = true;
-        return;
+        if ( ! isStartup )
+            return "You already have the " + _updater.getTargetDescName() + " version";
+        return "";
     }
 
     for ( ;; )
     {
-        _ui->pushRight ( new ConsoleUi::TextBox ( format (
-                             "%sLatest version is %s",
-                             sessionMessage.empty() ? "" : ( sessionMessage + "\n" ),
-                             _updater.getLatestVersion() ) ) );
+        std::string name = _updater.getTargetDescName();
+        name[0] = std::toupper(name[0]);
+        if (!isStartup) _ui->pop();
+        _ui->pushBelow ( new ConsoleUi::TextBox ( format (
+                             "%s" + name + " version is %s",
+                             /* sessionMessage.empty() ? */ "" /* : ( sessionMessage + "\n" ) */,
+                             _updater.getTargetVersion() ) ) );
 
         sessionMessage.clear();
 
@@ -1458,12 +1458,12 @@ void MainUi::update ( bool isStartup )
         const int ret = _ui->popUntilUserInput()->resultInt;
 
         _ui->pop();
-        _ui->pop();
+        if (isStartup) _ui->pop();
 
         if ( ret == 0 )         // Yes
         {
             fetch ( MainUpdater::Type::Archive );
-            return;
+            return "";
         }
         else if ( ret == 1 )    // View changes
         {
@@ -1472,9 +1472,103 @@ void MainUi::update ( bool isStartup )
         }
         else                    // No
         {
-            return;
+            return "";
         }
     }
+}
+
+void MainUi::update()
+{
+    static const vector<string> options =
+    {
+        "Update to latest version",
+        "Download previous version",
+        "Change update type",
+        "View changes",
+    };
+    
+    _ui->pushRight(new ConsoleUi::Menu("Update", options, "Back"));
+    std::string msg = "";
+    for (;;) {
+        if (!msg.empty()) _ui->pushBelow(new ConsoleUi::TextBox(msg));
+        ConsoleUi::Element *menu = _ui->popUntilUserInput(false); // Don't clear popped elements
+        
+        _ui->pushBelow(new ConsoleUi::TextBox("******************************************"));
+        _ui->pop(); // workaround for visible popped elements being unclearable
+
+        if (menu->resultInt < 0 || menu->resultInt >= (int)options.size())
+            break;
+        
+        switch (menu->resultInt) {
+        case 0:
+            _ui->pushBelow(new ConsoleUi::TextBox("Checking for updates..."));
+            msg = getUpdate();
+            sessionMessage = msg;
+            _ui->pop();
+            break;
+        case 1:
+            _ui->pushBelow(new ConsoleUi::TextBox("Checking for updates..."));
+            _updater.setTemporal(MainUpdater::Temporal::Previous);
+            msg = getUpdate();
+            sessionMessage = msg;
+            _ui->pop();
+            _updater.setTemporal(MainUpdater::Temporal::Latest);
+            break;
+        case 2:
+            _ui->pushInFront(new ConsoleUi::Menu("Select update type",
+                                                 {"Stable", "Dev"}, "Cancel"),
+                             {0, 0}, true); // Don't expand but DO clear top
+
+            int oldChannel;
+            oldChannel = _config.getInteger("updateChannel");
+            int p;
+            switch (static_cast<MainUpdater::Channel::Enum>(oldChannel)) {
+            case MainUpdater::Channel::Stable:
+                p = 0;
+                break;
+            case MainUpdater::Channel::Dev:
+                p = 1;
+                break;
+            default:
+                p = 0;
+                break;
+            }
+            _ui->top<ConsoleUi::Menu>()->setPosition(p);
+            _ui->popUntilUserInput(false);
+
+            if (_ui->top()->resultInt >= 0 && _ui->top()->resultInt <= 1) {
+                int c = -1;
+                switch (_ui->top()->resultInt) {
+                case 0:
+                    _updater.setChannel(MainUpdater::Channel::Stable);
+                    c = MainUpdater::Channel::Stable;
+                    break;
+                case 1:
+                    _updater.setChannel(MainUpdater::Channel::Dev);
+                    c = MainUpdater::Channel::Dev;
+                    break;
+                default: break;
+                }
+                _config.setInteger("updateChannel", c);
+                saveConfig();
+                if (_config.getInteger("updateChannel") != oldChannel) {
+                    _ui->pushBelow(new ConsoleUi::TextBox("Checking for updates..."));
+                    msg = getUpdate();
+                    sessionMessage = msg;
+                    _ui->pop();
+                } else msg = "";
+            }
+            
+            _ui->pop();
+            break;
+        case 3:
+            openChangeLog();
+            break;
+        default:
+            break;
+        }
+    }
+    _ui->pop();
 }
 
 void MainUi::openChangeLog()
@@ -1499,7 +1593,7 @@ void MainUi::openChangeLog()
 void MainUi::fetch ( const MainUpdater::Type& type )
 {
     if ( type != MainUpdater::Type::Version )
-        _ui->pushRight ( new ConsoleUi::ProgressBar ( "Downloading...", 20 ) );
+        _ui->pushBelow ( new ConsoleUi::ProgressBar ( "Downloading...", 20 ) );
 
     _updater.fetch ( type );
 
@@ -1551,7 +1645,7 @@ void MainUi::fetchFailed ( MainUpdater *updater, const MainUpdater::Type& type )
     switch ( type.value )
     {
         case MainUpdater::Type::Version:
-            sessionMessage = "Cannot fetch latest version info";
+            sessionMessage = "Cannot fetch info for " + _updater.getTargetDescName() + " version";
             break;
 
         case MainUpdater::Type::ChangeLog:
@@ -1559,7 +1653,7 @@ void MainUi::fetchFailed ( MainUpdater *updater, const MainUpdater::Type& type )
             break;
 
         case MainUpdater::Type::Archive:
-            sessionMessage = "Cannot download latest version";
+            sessionMessage = "Cannot download " + _updater.getTargetDescName() + " version";
             break;
 
         default:

@@ -90,6 +90,7 @@ private:
     void offline ( RunFuncPtr run );
     void controls();
     void settings();
+    void update();
     void results();
 
     bool areYouSure();
@@ -114,7 +115,7 @@ private:
 
     bool configure ( const PingStats& pingStats );
 
-    void update ( bool isStartup = false );
+    std::string getUpdate ( bool isStartup = false );
 
     void openChangeLog();
 

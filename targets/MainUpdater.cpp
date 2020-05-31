@@ -10,9 +10,6 @@
 using namespace std;
 
 
-// Path of the latest version file
-#define LATEST_VERSION_PATH "LatestVersion"
-
 // Main update archive file name
 #define UPDATE_ARCHIVE_FILE "update.zip"
 
@@ -59,7 +56,8 @@ void MainUpdater::doFetch ( const Type& type )
     switch ( type.value )
     {
         case Type::Version:
-            url += LATEST_VERSION_PATH;
+            _targetVersion.code = "";
+            url += getVersionFilePath();
             _httpGet.reset ( new HttpGet ( this, url, VERSION_CHECK_TIMEOUT ) );
             _httpGet->start();
             break;
@@ -71,16 +69,18 @@ void MainUpdater::doFetch ( const Type& type )
             break;
 
         case Type::Archive:
-            if ( _latestVersion.empty() )
+            if ( _targetVersion.empty() )
             {
-                LOG ( "Latest version is unknown" );
+                std::string name = getTargetDescName();
+                name[0] = std::toupper(name[0]);
+                LOG(name + " version is unknown");
 
                 if ( owner )
                     owner->fetchFailed ( this, Type::Archive );
                 return;
             }
 
-            url += format ( "cccaster.v%s.zip", _latestVersion.code );
+            url += format ( "cccaster.v%s.zip", _targetVersion.code );
             _httpDownload.reset ( new HttpDownload ( this, url, _downloadDir + UPDATE_ARCHIVE_FILE ) );
             _httpDownload->start();
             break;
@@ -125,9 +125,11 @@ bool MainUpdater::extractArchive() const
         return false;
     }
 
-    if ( _latestVersion.empty() )
+    if ( _targetVersion.empty() )
     {
-        LOG ( "Latest version is unknown" );
+        std::string name = getTargetDescName();
+        name[0] = std::toupper(name[0]);
+        LOG(name + " version is unknown");
         return false;
     }
 
@@ -137,7 +139,7 @@ bool MainUpdater::extractArchive() const
     if ( srcUpdater != tmpUpdater && ! CopyFile ( srcUpdater.c_str(), tmpUpdater.c_str(), FALSE ) )
         tmpUpdater = srcUpdater;
 
-    const string binary = format ( "cccaster.v%s.%s.exe", _latestVersion.major(), _latestVersion.minor() );
+    const string binary = format ( "cccaster.v%s.%s.exe", _targetVersion.major(), _targetVersion.minor() );
 
     const string command = format ( "\"" + tmpUpdater + "\" %d %s %s %s",
                                     GetCurrentProcessId(),
@@ -154,6 +156,54 @@ bool MainUpdater::extractArchive() const
     exit ( 0 );
 
     return true;
+}
+
+std::string MainUpdater::getVersionFilePath() const
+{
+    switch (_channel.value) {
+    case Channel::Stable:
+        switch (_temporal.value) {
+        case Temporal::Latest:
+            return "LatestVersion";
+        case Temporal::Previous:
+            return "PreviousVersion";
+        default: break;
+        }
+    case Channel::Dev:
+        switch (_temporal.value) {
+        case Temporal::Latest:
+            return "LatestVersionDev";
+        case Temporal::Previous:
+            return "PreviousVersionDev";
+        default: break;
+        }
+        break;
+    default: break;
+    }
+    return "LatestVersion";
+}
+
+std::string MainUpdater::getChannelName() const
+{
+    switch (_channel.value) {
+        case Channel::Dev: return "dev";
+        case Channel::Stable: return "stable";
+        default: return "unknown-channel";
+    }
+}
+
+std::string MainUpdater::getTemporalName() const
+{
+    switch (_temporal.value) {
+        case Temporal::Latest: return "latest";
+        case Temporal::Previous: return "previous";
+        default: return "unknown-temporal";
+    }
+}
+
+std::string MainUpdater::getTargetDescName() const
+{
+    return getTemporalName() + " " + getChannelName();
 }
 
 void MainUpdater::httpResponse ( HttpGet *httpGet, int code, const string& data, uint32_t remainingBytes )
@@ -173,7 +223,7 @@ void MainUpdater::httpResponse ( HttpGet *httpGet, int code, const string& data,
 
     _httpGet.reset();
 
-    _latestVersion = version;
+    _targetVersion = version;
 
     if ( owner )
         owner->fetchCompleted ( this, Type::Version );
