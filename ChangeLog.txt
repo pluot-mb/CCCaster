@@ -1,3 +1,9 @@
+v3.0.023:
+- Added an option to disable rollback replay fix.
+- Updater changes:
+  Added an option to revert to previous version after updating.
+  Added separate stable and development update types.
+
 v3.0.022:
 - Enabled replay saving with rollback.
 - Fixed problems with separate P1/P2 input delay.
