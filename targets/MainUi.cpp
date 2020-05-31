@@ -818,8 +818,8 @@ void MainUi::settings()
             
             case 9:
                 _ui->pushInFront(new ConsoleUi::Menu("Enable replay saving during rollback netplay?",
-                {"Yes", "No"}, "Cancel"),
-                {0, 0}, true); // Don't expand but DO clear top
+                                                     {"Yes", "No"}, "Cancel"),
+                                 {0, 0}, true); // Don't expand but DO clear top
 
                 _ui->top<ConsoleUi::Menu>()->setPosition((_config.getInteger( "replayRollbackOn") + 1)%2);
                 _ui->popUntilUserInput();
@@ -882,7 +882,7 @@ void MainUi::results()
     }
     for ( ;; )
     {
-        ConsoleUi::Element *menu = _ui->popUntilUserInput ( false ); // Clear popped since we don't care about messages
+        ConsoleUi::Element *menu = _ui->popUntilUserInput ( false ); // Don't clear popped
 
         if ( menu->resultInt < 0 || menu->resultInt >= ( int ) options.size() )
             break;
@@ -897,13 +897,12 @@ void MainUi::results()
                         buf << stvec[i] << endl;
                 }
                 _ui->pushBelow ( new ConsoleUi::TextBox ( buf.str() ) ,
-                             { 1, 1 } ); // Don't expand but DO clear top
+                                 { 1, 1 } ); // Expand in both directions
                 //system ( "@pause > nul" );
                 break;
             case 1:
                 if ( !showResults || index > maxIndex - 10 )
                     break;
-                //_ui->pop();
                 buf.str( "" );
                 if ( index < maxIndex - 10)
                     index += 10;
@@ -912,19 +911,18 @@ void MainUi::results()
                         buf << stvec[i] << endl;
                 }
                 _ui->pushBelow ( new ConsoleUi::TextBox ( buf.str() ) ,
-                                 { 1, 1 } ); // Don't expand but DO clear top
+                                 { 1, 1 } ); // Expand in both directions
                 break;
             case 2:
                 if ( !showResults || index < 10 )
                     break;
-                //_ui->pop();
                 buf.str( "" );
                 index -= 10;
                 for ( int i = index; i < index + 10; ++ i) {
                     buf << stvec[i] << endl;
                 }
                 _ui->pushBelow ( new ConsoleUi::TextBox ( buf.str() ) ,
-                                 { 1, 1 } ); // Don't expand but DO clear top
+                                 { 1, 1 } ); // Expand in both directions
                 break;
 
             default:
@@ -1491,10 +1489,10 @@ void MainUi::update()
     std::string msg = "";
     for (;;) {
         if (!msg.empty()) _ui->pushBelow(new ConsoleUi::TextBox(msg));
-        ConsoleUi::Element *menu = _ui->popUntilUserInput(false); // Don't clear popped elements
+        ConsoleUi::Element *menu = _ui->popUntilUserInput(false); // Don't clear popped elements yet
         
-        _ui->pushBelow(new ConsoleUi::TextBox("******************************************"));
-        _ui->pop(); // workaround for visible popped elements being unclearable
+        _ui->clearRight();
+        _ui->clearBelow(true);
 
         if (menu->resultInt < 0 || menu->resultInt >= (int)options.size())
             break;

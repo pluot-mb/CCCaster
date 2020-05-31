@@ -166,6 +166,7 @@ bool DllRollbackManager::loadState ( IndexedFrame indexedFrame, NetplayManager& 
             
             if (netMan.replayRollbackOn) {
                 // Erase one frame of inputs from the game's replay structs for each frame rolled back.
+                // TODO: save RepInputContainer's total frame count with each frame CCCaster indexes and roll back replay structs based on that instead of CCCaster's count 
                 for (; rbFrames > 0; rbFrames--) {
                     if (!*(RepRound**)CC_REPROUND_TBL_ENDPTR_ADDR) break;
                     RepRound* curRound = (*(RepRound**)CC_REPROUND_TBL_ENDPTR_ADDR - 1);
