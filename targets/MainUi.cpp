@@ -548,7 +548,7 @@ void MainUi::settings()
         "Max allowed network delay",
         "Default rollback",
         "Held start button in versus",
-        "Replay saving with rollback (possibly less stable)",
+        "Replay saving with rollback (experimental)",
         "About",
     };
 
