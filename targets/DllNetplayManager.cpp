@@ -169,7 +169,9 @@ uint16_t NetplayManager::getInGameInput ( uint8_t player )
                 _trainingResetType = 2;
             else
                 _trainingResetType = 0;
-
+			
+			*CC_P1_COMBO_GUARD_ADDR = 50;
+			
             input |= COMBINE_INPUT ( 0, CC_BUTTON_FN2 );
         }
         else if ( ( _trainingResetState == -2 || _trainingResetState >= 0 )
