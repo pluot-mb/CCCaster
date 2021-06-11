@@ -7,6 +7,7 @@
 #include <dinput.h>
 #define COBJMACROS
 #include <windows.h>
+#include <mmsystem.h>
 
 #include <algorithm>
 #include <fstream>
@@ -833,10 +834,14 @@ MsgPtr ControllerManager::loadMappings ( const string& file )
 
 void ControllerManager::PollingThread::run()
 {
+	timeBeginPeriod ( 1 ); // for select, see comment in SocketManager
+	
     while ( ControllerManager::get().check() )
     {
         Sleep ( 1 );
     }
+	
+	timeEndPeriod ( 1 ); // for select, see comment in SocketManager
 }
 
 void ControllerManager::startHighFreqPolling()
