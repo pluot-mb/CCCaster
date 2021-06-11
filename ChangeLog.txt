@@ -1,5 +1,8 @@
 v3.0.023:
-- Added an option to disable rollback replay fix.
+- Possible fix for slowdown on Windows 10 version 2004 and onwards.
+- Combo guard state now resets on FN2 reset in training mode.
+- Fixed a bug that caused online training to crash if rollback was above 0.
+- Added an option to disable the rollback replay fix.
 - Updater changes:
   Added an option to revert to previous version after updating.
   Added separate stable and development update types.
