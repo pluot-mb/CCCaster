@@ -154,7 +154,7 @@ bool DllRollbackManager::loadState ( IndexedFrame indexedFrame, NetplayManager& 
             if (netMan.replayRollbackOn) {
                 // Count the number of frames rolled back
                 rbFrames = _statesList.back().indexedFrame.value - it->indexedFrame.value;
-                LOG("Rolled back %i frames", rbFrames);
+                //LOG("Rolled back %i frames", rbFrames);
             }
 
             // Erase all other states after the current one.
@@ -164,9 +164,8 @@ bool DllRollbackManager::loadState ( IndexedFrame indexedFrame, NetplayManager& 
                 _freeStack.push ( jt->rawBytes - _memoryPool.get() );
             }
             
-            if (netMan.replayRollbackOn) {
+            if (!netMan.config.mode.isTraining() && netMan.replayRollbackOn) {
                 // Erase one frame of inputs from the game's replay structs for each frame rolled back.
-                // TODO: save RepInputContainer's total frame count with each frame CCCaster indexes and roll back replay structs based on that instead of CCCaster's count 
                 for (; rbFrames > 0; rbFrames--) {
                     if (!*(RepRound**)CC_REPROUND_TBL_ENDPTR_ADDR) break;
                     RepRound* curRound = (*(RepRound**)CC_REPROUND_TBL_ENDPTR_ADDR - 1);
@@ -180,10 +179,10 @@ bool DllRollbackManager::loadState ( IndexedFrame indexedFrame, NetplayManager& 
                         if (state->frameCount == 1) {
                             memset(state, 0, sizeof(RepInputState));
                             inputs->statesEnd -= sizeof(RepInputState);
-                            LOG("Replay state %i for p%i has frame count 1; decrementing index", inputs->activeIndex, i+1);
+                            //LOG("Replay state %i for p%i has frame count 1; decrementing index", inputs->activeIndex, i+1);
                             inputs->activeIndex--;
                         } else {
-                            LOG("Replay state %i for p%i has frame count %i; decrementing count", inputs->activeIndex, i+1, state->frameCount);
+                            //LOG("Replay state %i for p%i has frame count %i; decrementing count", inputs->activeIndex, i+1, state->frameCount);
                             state->frameCount--;
                         }
                     }
